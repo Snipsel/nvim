@@ -1,3 +1,10 @@
+-- function to simplify key mappings
+local function map(mode, lhs, rhs, opt)
+    local options = {noremap=true}
+    if opts then options = vim.tbl_extend('force',options, opts) end
+    vim.api.nvim_set_keymap(mode,lhs,rhs,options)
+end
+
 -- vim config
 vim.o.hlsearch = true -- highlight search
 vim.wo.number = true -- default numbers
@@ -6,20 +13,26 @@ vim.o.ignorecase = true -- case insensitive...
 vim.o.smartcase = true -- ... except when some characters are capitalized
 vim.o.termguicolors = true -- allow all the colors
 
--- tabs and indentation
+-- linebreaks
 vim.o.breakindent = true -- make sure line-wrapped text is indented
 vim.o.showbreak = '↳ '
+vim.o.linebreak = true -- wrap on words
+
+-- visual navigation
+map('n', 'j', 'gj', {silent=true})
+map('v', 'j', 'gj', {silent=true})
+map('n', 'k', 'gk', {silent=true})
+map('v', 'k', 'gk', {silent=true})
+map('n', '$', 'g$', {silent=true})
+map('v', '$', 'g$', {silent=true})
+map('n', '^', 'g^', {silent=true})
+map('v', '^', 'g^', {silent=true})
+
+-- tabs and indentation
 vim.o.expandtab = true -- tabs are spaces
 vim.o.tabstop = 4
 vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
-
--- function to simplify key mappings
-local function map(mode, lhs, rhs, opt)
-    local options = {noremap=true}
-    if opts then options = vim.tbl_extend('force',options, opts) end
-    vim.api.nvim_set_keymap(mode,lhs,rhs,options)
-end
 
 --Remap space as leader key
 vim.g.mapleader = ' '
@@ -49,7 +62,6 @@ vim.api.nvim_exec(
 
 -- plugins!
 local function config_lsp()
-    print("lspconfig gogogo!")
     -- generic vim autocomplete settings
     vim.o.completeopt = 'menuone,noselect'
 
@@ -88,20 +100,37 @@ local function config_lsp()
 end
 
 local packer = require('packer').startup(function(use)
-	use 'wbthomason/packer.nvim' -- Package manager
+    -- Package manager
+	use 'wbthomason/packer.nvim'
+
+    -- color scheme
 	use {'morhetz/gruvbox', config= function() 
-		vim.cmd('colorscheme gruvbox')
+        vim.cmd [[
+		    colorscheme gruvbox
+        ]]
 	end}
 
-    use {'neovim/nvim-lspconfig'}
-    use {'hrsh7th/nvim-cmp'}
+    -- language server
     use {'hrsh7th/cmp-nvim-lsp', 
         requires={'hrsh7th/nvim-cmp','neovim/nvim-lspconfig'},
-        config=config_lsp }
+        config=config_lsp
+    }
 
-	if packer_bootstrap then
-		require('packer').sync()
-	end
+    -- status line
+    use {'nvim-lualine/lualine.nvim', 
+        --requires = {'kyazdani42/nvim-web-devicons', opt = true},
+        config=function()
+            require('lualine').setup({
+                options = {
+                    theme='gruvbox'
+                }
+            }) 
+        end
+    }
+
+    if packer_bootstrap then
+        require('packer').sync()
+    end
 end)
 
 
