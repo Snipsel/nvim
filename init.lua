@@ -45,12 +45,26 @@ vim.keymap.set('n', '<leader>/',':noh<CR>', {silent = true }) -- clear search
 vim.keymap.set('n', '<leader>t',':tabnew ') -- open new tab
 
 return require('snipsel.packer').startup(function(use)
+    -- useful commands
     use 'tpope/vim-surround'
 
-    use{'morhetz/gruvbox',
-        config = "require('snipsel.gruvbox')",
+    -- color scheme
+    use{'morhetz/gruvbox', config = "require('snipsel.gruvbox')" }
+
+    -- autocompletion & snippets
+    use{'hrsh7th/nvim-cmp',
+        requires={
+            'hrsh7th/cmp-buffer',
+            'hrsh7th/cmp-path',
+            'hrsh7th/cmp-cmdline',
+            'L3MON4D3/LuaSnip',
+            'saadparwaiz1/cmp_luasnip',
+            'rafamadriz/friendly-snippets',
+        },
+        config = "require('snipsel.cmp')",
     }
 
+    -- language server
     use{'williamboman/mason-lspconfig.nvim',
         requires = {
             'williamboman/mason.nvim',
@@ -59,6 +73,7 @@ return require('snipsel.packer').startup(function(use)
         config = "require('snipsel.lsp')",
     }
 
+    -- file browser
     use{'nvim-tree/nvim-tree.lua',
         requires = {
             'kyazdani42/nvim-web-devicons'
@@ -66,15 +81,17 @@ return require('snipsel.packer').startup(function(use)
         config = "require('snipsel.nvim-tree')",
     }
 
-    use {'nvim-telescope/telescope.nvim',
-        branch = '0.1.x',
+    -- fuzzy search
+    use {'nvim-telescope/telescope.nvim', branch = '0.1.x',
         requires = {
-            'nvim-lua/plenary.nvim',
-            'kyazdani42/nvim-web-devicons'
+            {'nvim-lua/plenary.nvim'},
+            {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
+            {'kyazdani42/nvim-web-devicons'},
         },
         config = "require('snipsel.telescope')"
     }
 
+    -- nice status line
     use{'nvim-lualine/lualine.nvim',
         requires = {
             'kyazdani42/nvim-web-devicons',
