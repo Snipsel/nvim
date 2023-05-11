@@ -72,22 +72,38 @@ return require('packer').startup(function(use)
     use 'wbthomason/packer.nvim'
 
     use{'morhetz/gruvbox',
-        config=require('config.gruvbox')
+        config = "require('config.gruvbox')",
     }
 
-    use{'williamboman/mason.nvim',
-        'williamboman/mason-lspconfig.nvim',
-        'neovim/nvim-lspconfig',
-        config=require('config.lsp')
+    use{'williamboman/mason-lspconfig.nvim',
+        requires = {
+            'williamboman/mason.nvim',
+            'neovim/nvim-lspconfig',
+        },
+        config = "require('config.lsp')",
     }
 
     use{'nvim-tree/nvim-tree.lua',
-        'nvim-tree/nvim-web-devicons',
-        config=require('config.nvim-tree')
+        requires = {
+            'kyazdani42/nvim-web-devicons'
+        },
+        config = "require('config.nvim-tree')",
+    }
+
+    use {
+        'nvim-telescope/telescope.nvim',
+        branch = '0.1.x',
+        requires = {
+            'nvim-lua/plenary.nvim'
+        },
+        config = "require('config.telescope')"
     }
 
     use{'nvim-lualine/lualine.nvim',
-        config=require('config.lualine')
+        requires = {
+            'kyazdani42/nvim-web-devicons',
+        },
+        config = "require('config.lualine')",
     }
 
     if packer_bootstrap then

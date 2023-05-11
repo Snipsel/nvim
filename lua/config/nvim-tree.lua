@@ -5,7 +5,7 @@ require("nvim-tree").setup{
         end
         local api = require('nvim-tree.api')
 
-        map('e', api.node.open.edit, 'Expand folder or go to file')
+        map('l', api.node.open.edit, 'Expand folder or go to file')
         map('h', api.node.navigate.parent_close, 'Close Parent folder')
     end
 }
