@@ -67,7 +67,15 @@ require("nvim-tree").setup{
         map('S',     api.tree.search_node,                  'Search')
         map('U',     api.tree.toggle_custom_filter,         'Toggle Hidden')
         map('W',     api.tree.collapse_all,                 'Collapse')
-    end
+    end,
+
+    -- allow others to change cwd and such
+    sync_root_with_cwd = true,
+    respect_buf_cwd = true,
+    update_focused_file = {
+        enable = true,
+        update_root = true,
+    }
 }
 
 vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeToggle<cr>')
