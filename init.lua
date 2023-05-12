@@ -1,12 +1,13 @@
 -- vim config
 vim.opt.hlsearch = true -- highlight search
 vim.opt.number = true -- default numbers
-vim.opt.mouse = 'a' -- enable mouse
+vim.opt.mouse = 'a' -- enable mouse in (a)ll modes
 vim.opt.ignorecase = true -- case insensitive...
 vim.opt.smartcase = true -- ... except when some characters are capitalized
 vim.opt.termguicolors = true -- allow all the colors
 vim.opt.clipboard = 'unnamedplus' -- xclip must be installed, otherwise clipboard does not work
-vim.opt.splitright = true
+vim.opt.splitkeep = 'cursor' -- split so that the cursor does not move
+vim.o.ch = 0 -- FINALLY as of nvim 0.8 we can hide the command line below the status line
 
 -- disable netrw
 vim.g.loaded_netrw = 1
@@ -17,7 +18,7 @@ vim.opt.breakindent = true -- make sure line-wrapped text is indented
 vim.opt.showbreak = '↳ '
 vim.opt.linebreak = true -- wrap on words
 
--- visual navigation
+-- visual navigation instead of line-based navigation
 vim.keymap.set('n', 'j', 'gj', {silent=true})
 vim.keymap.set('v', 'j', 'gj', {silent=true})
 vim.keymap.set('n', 'k', 'gk', {silent=true})
@@ -29,9 +30,9 @@ vim.keymap.set('v', '^', 'g^', {silent=true})
 
 -- tabs and indentation
 vim.opt.expandtab = true -- tabs are spaces
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
+vim.opt.tabstop = 4 -- visualize <TAB> characters as 4-spaces wide
+vim.opt.softtabstop = 4 -- make tab key move to the next 4-column boundry
+vim.opt.shiftwidth = 4 -- number of spaces to auto-indent
 
 -- ctrl-s to save
 vim.keymap.set('n', '<C-s>', ':w<CR>', {silent=true})
@@ -61,6 +62,15 @@ vim.api.nvim_create_autocmd('BufEnter', {
 return require('snipsel.packer').startup(function(use)
     -- useful commands
     use 'tpope/vim-surround'
+    use 'tpope/vim-repeat' -- make dot-repeats (.) work as intended
+
+    -- LEAP: s=forward, S=backward, gs=other windows
+    use{'ggandor/leap.nvim',
+        requires={'tpope/vim-repeat'},
+        config=function()
+            require('leap').add_default_mappings(true)
+        end
+    }
 
     -- color scheme
     use{'morhetz/gruvbox', config = "require('snipsel.gruvbox')" }
