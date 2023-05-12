@@ -3,12 +3,6 @@ require('mason-lspconfig').setup({
     ensure_installed = { 'lua_ls', 'clangd' }
 })
 
-require('lspsaga').setup({
-    move_in_saga = { prev = '<C-k>', next = '<C-j>' },
-    finder_action_keys = { open = '<CR>' },
-    definition_action_keys = { edit = '<CR>' }
-})
-
 local lspconfig = require('lspconfig')
 
 local on_attach = function(client, bufnr)

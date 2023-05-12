@@ -100,15 +100,28 @@ return require('snipsel.packer').startup(function(use)
         config = "require('snipsel.cmp')",
     }
 
+    -- beautiful ui
+    use{'glepnir/lspsaga.nvim', branch='main',
+        config = function()
+            require('lspsaga').setup({
+                move_in_saga = { prev = '<C-k>', next = '<C-j>' },
+                finder_action_keys = { open = '<CR>' },
+                definition_action_keys = { edit = '<CR>' },
+                symbol_in_winbar = {
+                    separator = ' ', -- no separator
+                }
+            })
+        end
+    }
+
     -- language server
     use{'williamboman/mason-lspconfig.nvim',
         requires = {
             'williamboman/mason.nvim',
             'neovim/nvim-lspconfig',
             'hrsh7th/cmp-nvim-lsp', -- completion integration
-            {'glepnir/lspsaga.nvim', branch='main'}, -- better ui
         },
-        after = 'nvim-cmp',
+        after = {'nvim-cmp','lspsaga.nvim'},
         config = "require('snipsel.lsp')",
     }
 
@@ -135,6 +148,7 @@ return require('snipsel.packer').startup(function(use)
         requires = {
             'kyazdani42/nvim-web-devicons',
         },
+        after = 'lspsaga.nvim',
         config = "require('snipsel.lualine')",
     }
 end)
