@@ -68,6 +68,14 @@ return require('snipsel.packer').startup(function(use)
     -- show changed lines in git repo with green/red lines
     use{'lewis6991/gitsigns.nvim', config = function() require('gitsigns').setup() end }
 
+    -- terminal
+    use{'akinsho/toggleterm.nvim', tag='*', config=function()
+        require('toggleterm').setup({
+            open_mapping = [[<c-\>]], 
+            direction='float'
+        })
+    end}
+
     -- autocompletion & snippets
     use{'hrsh7th/nvim-cmp',
         requires={
