@@ -8,6 +8,7 @@ vim.opt.termguicolors = true -- allow all the colors
 vim.opt.clipboard = 'unnamedplus' -- xclip must be installed, otherwise clipboard does not work
 vim.opt.splitkeep = 'cursor' -- split so that the cursor does not move
 vim.o.ch = 0 -- FINALLY as of nvim 0.8 we can hide the command line below the status line
+vim.o.ls = 0 -- no status line :O
 
 -- disable netrw
 vim.g.loaded_netrw = 1
@@ -143,13 +144,19 @@ return require('snipsel.packer').startup(function(use)
         config = "require('snipsel.telescope')"
     }
 
-    -- nice status line
-    use{'nvim-lualine/lualine.nvim',
-        requires = {
-            'kyazdani42/nvim-web-devicons',
-        },
-        after = 'lspsaga.nvim',
-        config = "require('snipsel.lualine')",
+    -- buffer line at the top
+    use{'akinsho/bufferline.nvim', tag = '*',
+        requires = 'kyazdani42/nvim-web-devicons',
+        config = function() require('snipsel.bufferline') end
     }
+
+    -- nice status line
+    -- use{'nvim-lualine/lualine.nvim',
+    --     requires = {
+    --         'kyazdani42/nvim-web-devicons',
+    --     },
+    --     after = 'lspsaga.nvim',
+    --     config = "require('snipsel.lualine')",
+    -- }
 end)
 
