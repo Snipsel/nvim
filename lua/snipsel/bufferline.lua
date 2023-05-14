@@ -3,6 +3,32 @@ local bufferline = require('bufferline')
 vim.o.showcmd = true
 vim.o.showcmdloc = 'tabline'
 
+-- create some custom colors
+local SnipselColors = vim.api.nvim_create_augroup("SnipselColors", {clear=true})
+vim.api.nvim_create_autocmd("ColorScheme", { group=SnipselColors, callback=function()
+    -- colors grabbed from gruvbox
+    local blue   = '#83a598'
+    local yellow = '#fabd2f'
+    local orange = '#fe8019'
+    local red    = '#fb4934'
+    local green  = '#b8bb26'
+    local black  = '#282828'
+    local gray   = '#a89984'
+    local bg     = '#161616'
+
+    vim.api.nvim_set_hl(0,'SnipselNormal', {fg=black, bg=gray,   bold=true})
+    vim.api.nvim_set_hl(0,'SnipselInsert', {fg=black, bg=blue,   bold=true})
+    vim.api.nvim_set_hl(0,'SnipselCommand',{fg=black, bg=green,  bold=true})
+    vim.api.nvim_set_hl(0,'SnipselReplace',{fg=black, bg=red,    bold=true})
+    vim.api.nvim_set_hl(0,'SnipselVisual', {fg=black, bg=yellow, bold=true})
+
+    vim.api.nvim_set_hl(0,'SnipselNormalInv', {fg=gray,   bg=bg, bold=true})
+    vim.api.nvim_set_hl(0,'SnipselInsertInv', {fg=blue,   bg=bg, bold=true})
+    vim.api.nvim_set_hl(0,'SnipselCommandInv',{fg=green,  bg=bg, bold=true})
+    vim.api.nvim_set_hl(0,'SnipselReplaceInv',{fg=red,    bg=bg, bold=true})
+    vim.api.nvim_set_hl(0,'SnipselVisualInv', {fg=yellow, bg=bg, bold=true})
+end})
+
 -- refresh bufferline on mode change
 vim.api.nvim_create_autocmd({'ModeChanged','CursorMoved','CursorMovedI'},{
     callback = function(_)

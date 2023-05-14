@@ -6,9 +6,10 @@ vim.opt.ignorecase = true -- case insensitive...
 vim.opt.smartcase = true -- ... except when some characters are capitalized
 vim.opt.termguicolors = true -- allow all the colors
 vim.opt.clipboard = 'unnamedplus' -- xclip must be installed, otherwise clipboard does not work
-vim.opt.splitkeep = 'cursor' -- split so that the cursor does not move
+vim.opt.splitright = true
+vim.opt.splitbelow = true
 vim.o.ch = 0 -- FINALLY as of nvim 0.8 we can hide the command line below the status line
-vim.o.ls = 0 -- no status line :O
+vim.o.ls = 0 -- no status line, only tab line!
 
 -- disable netrw
 vim.g.loaded_netrw = 1
@@ -35,16 +36,57 @@ vim.opt.tabstop = 4 -- visualize <TAB> characters as 4-spaces wide
 vim.opt.softtabstop = 4 -- make tab key move to the next 4-column boundry
 vim.opt.shiftwidth = 4 -- number of spaces to auto-indent
 
--- ctrl-s to save
-vim.keymap.set('n', '<C-s>', ':w<CR>', {silent=true})
-vim.keymap.set('i', '<C-s>', '<ESC>:w<CR>a', {silent=true})
+-- disable key timout
+vim.o.timeout = false
 
--- Remap space as leader key
+local close_window = function()
+    local window_count = #vim.api.nvim_list_wins()
+    if window_count>1 then
+        vim.cmd('hide')
+    else
+        vim.cmd('confirm quita')
+    end
+end
+
+local close_buffer = function()
+    local listed_buffer_count = #vim.fn.getbufinfo({ buflisted=1 })
+    if listed_buffer_count>1 then
+        vim.cmd('BufferLineCyclePrev')
+        vim.cmd('bd#')
+        vim.cmd('redrawtabline')
+    else
+        vim.cmd('confirm quit')
+    end
+end
+
+-- window management commands
+vim.keymap.set('n', '<leader>Q',':confirm quita<CR>', {silent=true,desc='Quit neovim'})
+vim.keymap.set('n', '<leader>q',close_window, {silent=true,desc='Quit window (but keep the buffer)'})
+
+vim.keymap.set('n', '<leader>v', ':vsp<CR>',   {silent=true,desc='Vertical split'})
+vim.keymap.set('n', '<leader>s', ':sp<CR>',    {silent=true,desc='Split Horizontal'})
+vim.keymap.set('n', '<C-h>',     '<C-w><C-h>', {silent=true,desc='Go to window to the left'})
+vim.keymap.set('n', '<C-j>',     '<C-w><C-j>', {silent=true,desc='Go to window below'})
+vim.keymap.set('n', '<C-k>',     '<C-w><C-k>', {silent=true,desc='Go to window above'})
+vim.keymap.set('n', '<C-l>',     '<C-w><C-l>', {silent=true,desc='Go to window to the right'})
+
+-- buffer management
+vim.keymap.set('n', 'L',     ':BufferLineCycleNext<CR>', {silent=true,desc='Go to next buffer'})
+vim.keymap.set('n', 'H',     ':BufferLineCyclePrev<CR>', {silent=true,desc='Go to previous buffer'})
+vim.keymap.set('n', '<C-q>', close_buffer,               {silent=true,desc='Quit buffer (but keep window open)'})
+
+-- ctrl-s to save
+vim.keymap.set('n', '<C-s>', ':update<CR>',        {silent=true, desc="Save file"})
+vim.keymap.set('v', '<C-s>', '<C-c>:update<CR>gv', {silent=true, desc="Save file"})
+vim.keymap.set('i', '<C-s>', '<C-o>:update<CR>',   {silent=true, desc="Save file"})
+
+-- remap space as leader key
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.keymap.set('n', '<leader>', '<Nop>', { silent = true })
-vim.keymap.set('n', '<leader>/',':noh<CR>', {silent = true }) -- clear search
-vim.keymap.set('n', '<leader>t',':tabnew ') -- open new tab
+
+-- clear search like this, since ctrl-l is already used
+vim.keymap.set('n', '<leader>/', ':noh<cr>', { silent = true })
 
 -- auto select root
 vim.api.nvim_create_autocmd('BufEnter', {
@@ -75,6 +117,13 @@ return require('snipsel.packer').startup(function(use)
 
     -- color scheme
     use{'morhetz/gruvbox', config = "require('snipsel.gruvbox')" }
+
+    -- learn keys!
+    use{"folke/which-key.nvim",
+        config = function()
+            require("which-key").setup { }
+        end
+    }
 
     -- show changed lines in git repo with green/red lines
     use{'lewis6991/gitsigns.nvim', config = function() require('gitsigns').setup() end }
@@ -129,7 +178,7 @@ return require('snipsel.packer').startup(function(use)
     -- file browser
     use{'nvim-tree/nvim-tree.lua',
         requires = {
-            'kyazdani42/nvim-web-devicons'
+            'nvim-tree/nvim-web-devicons'
         },
         config = "require('snipsel.nvim-tree')",
     }
@@ -139,21 +188,22 @@ return require('snipsel.packer').startup(function(use)
         requires = {
             {'nvim-lua/plenary.nvim'},
             {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
-            {'kyazdani42/nvim-web-devicons'},
+            {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
+            {'nvim-tree/nvim-web-devicons'},
         },
         config = "require('snipsel.telescope')"
     }
 
     -- buffer line at the top
     use{'akinsho/bufferline.nvim', tag = '*',
-        requires = 'kyazdani42/nvim-web-devicons',
+        requires = 'nvim-tree/nvim-web-devicons',
         config = function() require('snipsel.bufferline') end
     }
 
     -- nice status line
     -- use{'nvim-lualine/lualine.nvim',
     --     requires = {
-    --         'kyazdani42/nvim-web-devicons',
+    --         'nvim-tree/nvim-web-devicons',
     --     },
     --     after = 'lspsaga.nvim',
     --     config = "require('snipsel.lualine')",
