@@ -29,8 +29,35 @@ vim.api.nvim_create_autocmd("ColorScheme", { group=SnipselColors, callback=funct
     vim.api.nvim_set_hl(0,'SnipselVisualInv', {fg=yellow, bg=bg, bold=true})
 end})
 
+local function starts_with(str, prefix)
+    return string.sub(str,1,#prefix) == prefix
+end
+
+local function check_network_status()
+    local has_wifi = false
+    local has_lan  = false
+    local has_vpn  = false
+    for interface,_ in pairs(vim.loop.interface_addresses()) do
+        if starts_with(interface, 'wl') then
+            has_wifi = true
+        elseif starts_with(interface, 'en') then
+            has_lan = true
+        elseif starts_with(interface, 'ci') then
+            has_vpn = true
+        end
+    end
+
+    local status = {}
+    if has_vpn then table.insert(status, '󱠾') end
+    table.insert(status,has_wifi and '󰖩' or '󰖪')
+    table.insert(status,has_lan  and '󰌘' or '󰌙')
+    return table.concat(status,' ')
+end
+
 -- refresh bufferline on mode change
+local snipsel_refresh_status = vim.api.nvim_create_augroup('SnipselRefreshStatus',{clear=true})
 vim.api.nvim_create_autocmd({'ModeChanged','CursorMoved','CursorMovedI'},{
+    group = snipsel_refresh_status,
     callback = function(_)
         vim.cmd('redrawtabline')
         vim.cmd('redraw')
@@ -92,7 +119,7 @@ local leftline = function()
 end
 
 local rightline = function()
-    return '%#BufferLineFill# %{strftime("%d %b %H:%M")} '
+    return '%#BufferLineFill# ' .. check_network_status() .. ' %{strftime("%d %b %H:%M")} '
 end
 
 bufferline.setup{

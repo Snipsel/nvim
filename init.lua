@@ -8,8 +8,16 @@ vim.opt.termguicolors = true -- allow all the colors
 vim.opt.clipboard = 'unnamedplus' -- xclip must be installed, otherwise clipboard does not work
 vim.opt.splitright = true
 vim.opt.splitbelow = true
-vim.o.ch = 0 -- FINALLY as of nvim 0.8 we can hide the command line below the status line
-vim.o.ls = 0 -- no status line, only tab line!
+vim.o.cmdheight = 0 -- FINALLY as of nvim 0.8 we can hide the command line below the status line
+vim.o.laststatus = 0 -- no status line, only tab line!
+vim.o.timeout = false
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
+-- gui settings
+vim.o.guifont = "SauceCodePro Nerd Font Mono,Noto Color Emoji"
+vim.g.neovide_scroll_animation_length = 0.3
+vim.g.neovide_no_idle = true
 
 -- disable netrw
 vim.g.loaded_netrw = 1
@@ -17,18 +25,8 @@ vim.g.loaded_netrwPlugin = 1
 
 -- linebreaks
 vim.opt.breakindent = true -- make sure line-wrapped text is indented
-vim.opt.showbreak = '↳ '
 vim.opt.linebreak = true -- wrap on words
-
--- visual navigation instead of line-based navigation
-vim.keymap.set('n', 'j', 'gj', {silent=true})
-vim.keymap.set('v', 'j', 'gj', {silent=true})
-vim.keymap.set('n', 'k', 'gk', {silent=true})
-vim.keymap.set('v', 'k', 'gk', {silent=true})
-vim.keymap.set('n', '$', 'g$', {silent=true})
-vim.keymap.set('v', '$', 'g$', {silent=true})
-vim.keymap.set('n', '^', 'g^', {silent=true})
-vim.keymap.set('v', '^', 'g^', {silent=true})
+vim.opt.showbreak = '↳ '
 
 -- tabs and indentation
 vim.opt.expandtab = true -- tabs are spaces
@@ -36,62 +34,41 @@ vim.opt.tabstop = 4 -- visualize <TAB> characters as 4-spaces wide
 vim.opt.softtabstop = 4 -- make tab key move to the next 4-column boundry
 vim.opt.shiftwidth = 4 -- number of spaces to auto-indent
 
--- disable key timout
-vim.o.timeout = false
+vim.api.nvim_create_augroup('SnipselInit', {})
 
-local close_window = function()
-    local window_count = #vim.api.nvim_list_wins()
-    if window_count>1 then
-        vim.cmd('hide')
-    else
-        vim.cmd('confirm quita')
+-- move help files to floating window
+vim.api.nvim_create_autocmd('BufEnter', {
+    group = 'SnipselInit',
+    callback = function()
+        -- early-out if not help buffer
+        if vim.bo.buftype ~= 'help' then return end
+
+        -- early-out if already floating
+        if vim.api.nvim_win_get_config(0).relative ~= '' then return end
+
+        local ui = vim.api.nvim_list_uis()[1]
+        vim.api.nvim_win_set_config(0, {
+            relative = 'editor',
+            width = 80-2,
+            height = ui.height-3,
+            col = ui.width/2 - (80-2)/2,
+            row = 2,
+            style = 'minimal',
+            border = 'rounded',
+            external = false,
+            focusable = true,
+            title = vim.fn.expand('%'),
+        })
+        vim.o.laststatus = 0
+        vim.api.nvim_win_set_option(0, 'winhl', 'Normal:Normal')
     end
-end
-
-local close_buffer = function()
-    local listed_buffer_count = #vim.fn.getbufinfo({ buflisted=1 })
-    if listed_buffer_count>1 then
-        vim.cmd('BufferLineCyclePrev')
-        vim.cmd('bd#')
-        vim.cmd('redrawtabline')
-    else
-        vim.cmd('confirm quit')
-    end
-end
-
--- window management commands
-vim.keymap.set('n', '<leader>Q',':confirm quita<CR>', {silent=true,desc='Quit neovim'})
-vim.keymap.set('n', '<leader>q',close_window, {silent=true,desc='Quit window (but keep the buffer)'})
-
-vim.keymap.set('n', '<leader>v', ':vsp<CR>',   {silent=true,desc='Vertical split'})
-vim.keymap.set('n', '<leader>s', ':sp<CR>',    {silent=true,desc='Split Horizontal'})
-vim.keymap.set('n', '<C-h>',     '<C-w><C-h>', {silent=true,desc='Go to window to the left'})
-vim.keymap.set('n', '<C-j>',     '<C-w><C-j>', {silent=true,desc='Go to window below'})
-vim.keymap.set('n', '<C-k>',     '<C-w><C-k>', {silent=true,desc='Go to window above'})
-vim.keymap.set('n', '<C-l>',     '<C-w><C-l>', {silent=true,desc='Go to window to the right'})
-
--- buffer management
-vim.keymap.set('n', 'L',     ':BufferLineCycleNext<CR>', {silent=true,desc='Go to next buffer'})
-vim.keymap.set('n', 'H',     ':BufferLineCyclePrev<CR>', {silent=true,desc='Go to previous buffer'})
-vim.keymap.set('n', '<C-q>', close_buffer,               {silent=true,desc='Quit buffer (but keep window open)'})
-
--- ctrl-s to save
-vim.keymap.set('n', '<C-s>', ':update<CR>',        {silent=true, desc="Save file"})
-vim.keymap.set('v', '<C-s>', '<C-c>:update<CR>gv', {silent=true, desc="Save file"})
-vim.keymap.set('i', '<C-s>', '<C-o>:update<CR>',   {silent=true, desc="Save file"})
-
--- remap space as leader key
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-vim.keymap.set('n', '<leader>', '<Nop>', { silent = true })
-
--- clear search like this, since ctrl-l is already used
-vim.keymap.set('n', '<leader>/', ':noh<cr>', { silent = true })
+})
 
 -- auto select root
 vim.api.nvim_create_autocmd('BufEnter', {
-    group = vim.api.nvim_create_augroup('AutoRoot', {}),
+    group = 'SnipselInit',
     callback = function()
+        if vim.bo.buftype ~= '' then return end -- only apply this to regular buffers
         local path = vim.api.nvim_buf_get_name(0)
         if path == '' then return end
         local root_names = {'.git', 'compile-commands.json', 'Makefile', 'README.md', 'README.txt'}
@@ -102,7 +79,7 @@ vim.api.nvim_create_autocmd('BufEnter', {
     end
 })
 
-return require('snipsel.packer').startup(function(use)
+require('snipsel.packer').startup(function(use)
     -- useful commands
     use 'tpope/vim-surround'
     use 'tpope/vim-repeat' -- make dot-repeats (.) work as intended
@@ -131,7 +108,7 @@ return require('snipsel.packer').startup(function(use)
     -- terminal
     use{'akinsho/toggleterm.nvim', tag='*', config=function()
         require('toggleterm').setup({
-            open_mapping = [[<c-\>]], 
+            open_mapping = [[<c-\>]],
             direction='float'
         })
     end}
@@ -199,14 +176,82 @@ return require('snipsel.packer').startup(function(use)
         requires = 'nvim-tree/nvim-web-devicons',
         config = function() require('snipsel.bufferline') end
     }
-
-    -- nice status line
-    -- use{'nvim-lualine/lualine.nvim',
-    --     requires = {
-    --         'nvim-tree/nvim-web-devicons',
-    --     },
-    --     after = 'lspsaga.nvim',
-    --     config = "require('snipsel.lualine')",
-    -- }
 end)
+
+local function close_window()
+    local window_count = #vim.api.nvim_list_wins()
+    if window_count>1 then
+        vim.api.nvim_win_hide(0)
+    else
+        vim.cmd('confirm quita')
+    end
+end
+
+local function close_buffer()
+    local listed_buffer_count = #vim.fn.getbufinfo({ buflisted=1 })
+    if listed_buffer_count>1 then
+        require('bufferline').cycle(-1)
+        vim.cmd('bd#')
+        vim.cmd('redrawtabline')
+    else
+        vim.cmd('confirm quit')
+    end
+end
+
+local nmap = {
+    ['␣']  = {--[[ unset space --]]        n='<NOP>', v='<NOP>'},
+    ['␣/'] = {'Clear search buffer',       n=':noh↲'},
+    ['␣Q'] = {'Quit neovim',               n=':confirm quita↲'},
+
+    -- window management
+    ['␣q'] = {'Quit window',               n= close_window},
+
+    ['␣h'] = {'Go to window to the left',  n='↑w↑h'},
+    ['␣j'] = {'Go to window below',        n='↑w↑j'},
+    ['␣k'] = {'Go to window above',        n='↑w↑k'},
+    ['␣l'] = {'Go to window to the right', n='↑w↑l'},
+
+    ['␣v'] = {'Vertical split',            n=':vsplit↲'},
+    ['␣s'] = {'Split hoorizontal',         n=':split↲'},
+
+    -- buffer management
+    ['↑q'] = {'Quit buffer',               n= close_buffer},
+    ['↑l'] = {'Go to next buffer',         n=':BufferLineCycleNext↲'},
+    ['↑h'] = {'Go to previous buffer',     n=':BufferLineCyclePrev↲'},
+    ['↑s'] = {'Save file',                 n=':update↲',
+                                           v='↑c:update↲gv',
+                                           i='↑o:update↲'},
+    ['↑u'] = {'Go up by half a screen',    n='↑uzz'},
+    ['↑d'] = {'Go down by half a screen',  n='↑dzz'},
+
+    -- visual navigation instead of line-based navigation
+      j    = {'Move down one line',        n='gj', v='gj'},
+      k    = {'Move up one line',          n='gk', v='gk'},
+    ['$']  = {'Move down one line',        n='g$', v='g$'},
+    ['^']  = {'Move down one line',        n='g^', v='g^'},
+
+    -- fuzzy finding goodness
+    ['␣o'] = {'Open file',     n=require('telescope.builtin').find_files },
+    ['␣g'] = {'Grep files',    n=require('telescope.builtin').live_grep },
+    ['␣b'] = {'Find buffer',   n=require('telescope.builtin').buffers },
+    ['␣?'] = {'Find Help',     n=require('telescope.builtin').help_tags },
+}
+
+local function convert_keys(s)
+    s = string.gsub(s, '␣',  '<leader>')
+    s = string.gsub(s, '↑(.)', '<C-%1>')
+    s = string.gsub(s, '⎇(.)', '<M-%1>')
+    s = string.gsub(s, '↲',  '<CR>')
+    return s
+end
+
+for keys,cmd in pairs(nmap) do
+    local opt = {silent=true, noremap=true, desc=cmd[1]}
+    for c in ('nvi'):gmatch'.' do
+        if cmd[c] then
+            local command = type(cmd[c])=='string' and convert_keys(cmd[c]) or cmd[c]
+            vim.keymap.set(c, convert_keys(keys), command, opt)
+        end
+    end
+end
 
