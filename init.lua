@@ -15,9 +15,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- gui settings
-vim.o.guifont = "SauceCodePro Nerd Font Mono,Noto Color Emoji"
-vim.g.neovide_scroll_animation_length = 0.3
-vim.g.neovide_no_idle = true
+vim.o.guifont = "SauceCodePro Nerd Font,Noto Color Emoji"
 
 -- disable netrw
 vim.g.loaded_netrw = 1
@@ -34,35 +32,7 @@ vim.opt.tabstop = 4 -- visualize <TAB> characters as 4-spaces wide
 vim.opt.softtabstop = 4 -- make tab key move to the next 4-column boundry
 vim.opt.shiftwidth = 4 -- number of spaces to auto-indent
 
-vim.api.nvim_create_augroup('SnipselInit', {})
-
--- move help files to floating window
-vim.api.nvim_create_autocmd('BufEnter', {
-    group = 'SnipselInit',
-    callback = function()
-        -- early-out if not help buffer
-        if vim.bo.buftype ~= 'help' then return end
-
-        -- early-out if already floating
-        if vim.api.nvim_win_get_config(0).relative ~= '' then return end
-
-        local ui = vim.api.nvim_list_uis()[1]
-        vim.api.nvim_win_set_config(0, {
-            relative = 'editor',
-            width = 80-2,
-            height = ui.height-3,
-            col = ui.width/2 - (80-2)/2,
-            row = 2,
-            style = 'minimal',
-            border = 'rounded',
-            external = false,
-            focusable = true,
-            title = vim.fn.expand('%'),
-        })
-        vim.o.laststatus = 0
-        vim.api.nvim_win_set_option(0, 'winhl', 'Normal:Normal')
-    end
-})
+vim.api.nvim_create_augroup('SnipselInit', {clear = true})
 
 -- auto select root
 vim.api.nvim_create_autocmd('BufEnter', {
@@ -79,104 +49,164 @@ vim.api.nvim_create_autocmd('BufEnter', {
     end
 })
 
-require('snipsel.packer').startup(function(use)
-    -- useful commands
-    use 'tpope/vim-surround'
-    use 'tpope/vim-repeat' -- make dot-repeats (.) work as intended
+-- create some custom colors
+vim.api.nvim_create_autocmd("ColorScheme", { group='SnipselInit', callback=function()
+    -- colors grabbed from gruvbox
+    local blue   = '#83a598'
+    local yellow = '#fabd2f'
+    local orange = '#fe8019'
+    local red    = '#fb4934'
+    local green  = '#b8bb26'
+    local black  = '#282828'
+    local gray   = '#a89984'
+    local bg     = '#161616'
 
-    -- LEAP: s=forward, S=backward, gs=other windows
-    use{'ggandor/leap.nvim',
-        requires={'tpope/vim-repeat'},
-        config=function()
-            require('leap').add_default_mappings(true)
-        end
-    }
+    vim.api.nvim_set_hl(0,'SnipselNormal', {fg=black, bg=gray,   bold=true})
+    vim.api.nvim_set_hl(0,'SnipselInsert', {fg=black, bg=blue,   bold=true})
+    vim.api.nvim_set_hl(0,'SnipselCommand',{fg=black, bg=green,  bold=true})
+    vim.api.nvim_set_hl(0,'SnipselReplace',{fg=black, bg=red,    bold=true})
+    vim.api.nvim_set_hl(0,'SnipselVisual', {fg=black, bg=yellow, bold=true})
 
-    -- color scheme
-    use{'morhetz/gruvbox', config = "require('snipsel.gruvbox')" }
+    vim.api.nvim_set_hl(0,'SnipselNormalInv', {fg=gray,   bg=bg, bold=true})
+    vim.api.nvim_set_hl(0,'SnipselInsertInv', {fg=blue,   bg=bg, bold=true})
+    vim.api.nvim_set_hl(0,'SnipselCommandInv',{fg=green,  bg=bg, bold=true})
+    vim.api.nvim_set_hl(0,'SnipselReplaceInv',{fg=red,    bg=bg, bold=true})
+    vim.api.nvim_set_hl(0,'SnipselVisualInv', {fg=yellow, bg=bg, bold=true})
+end})
 
-    -- learn keys!
-    use{"folke/which-key.nvim",
-        config = function()
-            require("which-key").setup { }
-        end
-    }
+-- lazyvim bootstrap and run
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({ "git", "clone", "--filter=blob:none", 
+  "https://github.com/folke/lazy.nvim.git", "--branch=stable", 
+  lazypath, })
+end
+vim.opt.rtp:prepend(lazypath)
+require("lazy").setup("plugins")
 
-    -- show changed lines in git repo with green/red lines
-    use{'lewis6991/gitsigns.nvim', config = function() require('gitsigns').setup() end }
+-- move help files to floating window
+-- vim.api.nvim_create_autocmd('BufEnter', {
+--     group = 'SnipselInit',
+--     callback = function()
+--         -- early-out if not help buffer
+--         if vim.bo.buftype ~= 'help' then return end
+-- 
+--         -- early-out if already floating
+--         if vim.api.nvim_win_get_config(0).relative ~= '' then return end
+-- 
+--         local ui = vim.api.nvim_list_uis()[1]
+--         vim.api.nvim_win_set_config(0, {
+--             relative = 'editor',
+--             width = 80-2,
+--             height = ui.height-3,
+--             col = ui.width/2 - (80-2)/2,
+--             row = 2,
+--             style = 'minimal',
+--             border = 'rounded',
+--             external = false,
+--             focusable = true,
+--             title = vim.fn.expand('%'),
+--         })
+--         vim.o.laststatus = 0
+--         vim.api.nvim_win_set_option(0, 'winhl', 'Normal:Normal')
+--     end
+-- })
 
-    -- terminal
-    use{'akinsho/toggleterm.nvim', tag='*', config=function()
-        require('toggleterm').setup({
-            open_mapping = [[<c-\>]],
-            direction='float'
-        })
-    end}
-
-    -- autocompletion & snippets
-    use{'hrsh7th/nvim-cmp',
-        requires={
-            'hrsh7th/cmp-buffer',
-            'hrsh7th/cmp-path',
-            'hrsh7th/cmp-cmdline',
-            'onsails/lspkind.nvim', -- pretty pictograms in completion window
-            'L3MON4D3/LuaSnip', -- snippet engine
-            'saadparwaiz1/cmp_luasnip',
-            'rafamadriz/friendly-snippets', -- some nice default snippets
-        },
-        config = "require('snipsel.cmp')",
-    }
-
-    -- beautiful ui
-    use{'glepnir/lspsaga.nvim', branch='main',
-        config = function()
-            require('lspsaga').setup({
-                move_in_saga = { prev = '<C-k>', next = '<C-j>' },
-                finder_action_keys = { open = '<CR>' },
-                definition_action_keys = { edit = '<CR>' },
-                symbol_in_winbar = {
-                    separator = ' ', -- no separator
-                }
-            })
-        end
-    }
-
-    -- language server
-    use{'williamboman/mason-lspconfig.nvim',
-        requires = {
-            'williamboman/mason.nvim',
-            'neovim/nvim-lspconfig',
-            'hrsh7th/cmp-nvim-lsp', -- completion integration
-        },
-        after = {'nvim-cmp','lspsaga.nvim'},
-        config = "require('snipsel.lsp')",
-    }
-
-    -- file browser
-    use{'nvim-tree/nvim-tree.lua',
-        requires = {
-            'nvim-tree/nvim-web-devicons'
-        },
-        config = "require('snipsel.nvim-tree')",
-    }
-
-    -- fuzzy search
-    use {'nvim-telescope/telescope.nvim', branch = '0.1.x',
-        requires = {
-            {'nvim-lua/plenary.nvim'},
-            {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
-            {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
-            {'nvim-tree/nvim-web-devicons'},
-        },
-        config = "require('snipsel.telescope')"
-    }
-
-    -- buffer line at the top
-    use{'akinsho/bufferline.nvim', tag = '*',
-        requires = 'nvim-tree/nvim-web-devicons',
-        config = function() require('snipsel.bufferline') end
-    }
-end)
+-- require('snipsel.packer').startup(function(use)
+--     -- useful commands
+-- 
+--     -- LEAP: s=forward, S=backward, gs=other windows
+--     use{'ggandor/leap.nvim',
+--         requires={'tpope/vim-repeat'},
+--         config=function()
+--             require('leap').add_default_mappings(true)
+--         end
+--     }
+-- 
+--     -- color scheme
+--     use{'morhetz/gruvbox', config = "require('snipsel.gruvbox')" }
+-- 
+--     -- learn keys!
+--     use{"folke/which-key.nvim",
+--         config = function()
+--             require("which-key").setup { }
+--         end
+--     }
+-- 
+--     -- show changed lines in git repo with green/red lines
+--     use{'lewis6991/gitsigns.nvim', config = function() require('gitsigns').setup() end }
+-- 
+--     -- terminal
+--     use{'akinsho/toggleterm.nvim', tag='*', config=function()
+--         require('toggleterm').setup({
+--             open_mapping = [[<c-\>]],
+--             direction='float'
+--         })
+--     end}
+-- 
+--     -- autocompletion & snippets
+--     use{'hrsh7th/nvim-cmp',
+--         requires={
+--             'hrsh7th/cmp-buffer',
+--             'hrsh7th/cmp-path',
+--             'hrsh7th/cmp-cmdline',
+--             'onsails/lspkind.nvim', -- pretty pictograms in completion window
+--             'L3MON4D3/LuaSnip', -- snippet engine
+--             'saadparwaiz1/cmp_luasnip',
+--             'rafamadriz/friendly-snippets', -- some nice default snippets
+--         },
+--         config = "require('snipsel.cmp')",
+--     }
+-- 
+--     -- beautiful ui
+--     use{'glepnir/lspsaga.nvim', branch='main',
+--         config = function()
+--             require('lspsaga').setup({
+--                 move_in_saga = { prev = '<C-k>', next = '<C-j>' },
+--                 finder_action_keys = { open = '<CR>' },
+--                 definition_action_keys = { edit = '<CR>' },
+--                 symbol_in_winbar = {
+--                     separator = ' ', -- no separator
+--                 }
+--             })
+--         end
+--     }
+-- 
+--     -- language server
+--     use{'williamboman/mason-lspconfig.nvim',
+--         requires = {
+--             'williamboman/mason.nvim',
+--             'neovim/nvim-lspconfig',
+--             'hrsh7th/cmp-nvim-lsp', -- completion integration
+--         },
+--         after = {'nvim-cmp','lspsaga.nvim'},
+--         config = "require('snipsel.lsp')",
+--     }
+-- 
+--     -- file browser
+--     use{'nvim-tree/nvim-tree.lua',
+--         requires = {
+--             'nvim-tree/nvim-web-devicons'
+--         },
+--         config = "require('snipsel.nvim-tree')",
+--     }
+-- 
+--     -- fuzzy search
+--     use {'nvim-telescope/telescope.nvim', branch = '0.1.x',
+--         requires = {
+--             {'nvim-lua/plenary.nvim'},
+--             {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
+--             {'nvim-tree/nvim-web-devicons'},
+--         },
+--         config = "require('snipsel.telescope')"
+--     }
+-- 
+--     -- buffer line at the top
+--     use{'akinsho/bufferline.nvim', tag = '*',
+--         requires = 'nvim-tree/nvim-web-devicons',
+--         config = function() require('snipsel.bufferline') end
+--     }
+-- end)
 
 local function close_window()
     local window_count = #vim.api.nvim_list_wins()
@@ -212,7 +242,7 @@ local nmap = {
     ['␣l'] = {'Go to window to the right', n='↑w↑l'},
 
     ['␣v'] = {'Vertical split',            n=':vsplit↲'},
-    ['␣s'] = {'Split hoorizontal',         n=':split↲'},
+    ['␣s'] = {'Split horizontal',          n=':split↲'},
 
     -- buffer management
     ['↑q'] = {'Quit buffer',               n= close_buffer},
@@ -229,12 +259,6 @@ local nmap = {
       k    = {'Move up one line',          n='gk', v='gk'},
     ['$']  = {'Move down one line',        n='g$', v='g$'},
     ['^']  = {'Move down one line',        n='g^', v='g^'},
-
-    -- fuzzy finding goodness
-    ['␣o'] = {'Open file',     n=require('telescope.builtin').find_files },
-    ['␣g'] = {'Grep files',    n=require('telescope.builtin').live_grep },
-    ['␣b'] = {'Find buffer',   n=require('telescope.builtin').buffers },
-    ['␣?'] = {'Find Help',     n=require('telescope.builtin').help_tags },
 }
 
 local function convert_keys(s)
