@@ -15,7 +15,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- gui settings
-vim.o.guifont = "SauceCodePro Nerd Font,Noto Color Emoji"
+vim.o.guifont = "SauceCodePro Nerd Font,Noto Color Emoji:h11:#h-none"
 
 -- disable netrw
 vim.g.loaded_netrw = 1
@@ -228,6 +228,94 @@ local function close_buffer()
     end
 end
 
+-- unused keys by neovim
+-- 1) function keys
+-- 2) alt-keys
+-- 3) following ctrl-keys in all modes: ^Q ^S
+--    - here, ^Q quits the buffer, and ^S saves the buffer
+-- 4) following ctrl-keys in normal mode:
+--   ^@  (equal to ^space)
+--   ^H  (mapped to h)
+--   ^J  (mapped to j)
+--   ^N  (mapped to j)
+--   ^K  (mapped to k)
+--   ^P  (mapped to k)
+--   ^L  (mapped to l)
+--   ^M  (same as <CR>)
+--   ^K  (free)
+--   ^[  (= ^Esc )
+--   ^_  (= ^/ )
+--   ^\  (part 'reserved for extentions' whatever that means)
+--   ^<CR> (here mapped to toggleterm)
+-- 5) following keys in normal mode:
+--  <bs> mapped to h
+--    +  (mapped to <CR>)
+--    K  (man page finder, not that useful)
+--    S  mapped to cc, used by vim-surround
+--    Y  mapped to y$ in neovim
+--    _  almost identical to <CR>
+--    s  mapped to cl
+-- 6) not that useful keys in normal mode
+--    x  mapped to dl ( may be useful to repeatedly use t
+--    H  cursor to line N from the top of screen
+--    L  cursor to line N from the bottom of the screen
+--   ^B  scroll N full-screens backwards
+--   ^F  scroll N full-screens forwards
+
+local function print_keymap()
+    local map = {
+        {
+            {"tab",  'n newer entry in jump list'},
+            {"^tab", 'go to last accessed tab (g<tab>)'},
+            {'TAB',  '(unmapped)'},
+        },{
+            { "'", 'cursor to marked line'},
+            {"^'", '(unmapped)'},
+            { '"', 'select register'},
+            { '`', 'cursor to mark'},
+        },{
+            { ',', 'repeat f/t/F/T reversed'},
+            {'^,', '(unmapped)'},
+            { '<', 'dedent motion'},
+        },{
+            { '.', 'repeat last action'},
+            {'^.', '(unmapped)'},
+            { '>', 'indent motion'},
+        },{
+            { 'p', 'paste after cursor'},
+            {'^p', 'mapped to k'},
+            { 'P', 'paste before cursor'},
+            { '+', 'mapped to ↲'},
+        },{
+            { 'y', 'yank'},
+            {'^y', 'scroll up'},
+            { 'Y', 'mapped to y$'},
+            { '~', 'toggle case'},
+        },
+    }
+
+    -- count width of columns
+    local max_key  = {0,0,0,0}
+    local max_desc = {0,0,0,0}
+    for _,row in ipairs(map) do
+        for i,entry in ipairs(row) do
+            max_key[i]  = math.max(max_key[i],  string.len(entry[1]))
+            max_desc[i] = math.max(max_desc[i], string.len(entry[2]))
+        end
+    end
+
+    for _,row in ipairs(map) do
+        local line = {}
+        for i,entry in ipairs(row) do
+            local fmt = '%' .. max_key[i] .. 's %-' .. max_desc[i] .. 's'
+            table.insert(line, string.format(fmt, entry[1], entry[2]))
+        end
+        print(table.concat(line, '  '))
+    end
+end
+
+print_keymap()
+
 local nmap = {
     ['␣']  = {--[[ unset space --]]        n='<NOP>', v='<NOP>'},
     ['␣/'] = {'Clear search buffer',       n=':noh↲'},
@@ -245,10 +333,10 @@ local nmap = {
     ['␣s'] = {'Split horizontal',          n=':split↲'},
 
     -- buffer management
-    ['↑q'] = {'Quit buffer',               n= close_buffer},
     ['↑l'] = {'Go to next buffer',         n=':BufferLineCycleNext↲'},
     ['↑h'] = {'Go to previous buffer',     n=':BufferLineCyclePrev↲'},
-    ['↑s'] = {'Save file',                 n=':update↲',
+    ['↑q'] = {'Quit buffer',               n= close_buffer},
+    ['↑s'] = {'Save buffer',               n=':update↲',
                                            v='↑c:update↲gv',
                                            i='↑o:update↲'},
     ['↑u'] = {'Go up by half a screen',    n='↑uzz'},
