@@ -25,7 +25,7 @@ local mode = function()
         ['t'] =  '%#SnipselNormalInv#%#SnipselNormal# TERMINAL %#SnipselNormalInv#',
         ['?'] =  '%#SnipselNormalInv#%#SnipselNormal#  ? ? ?  %#SnipselNormalInv#',
     }
-    return '%-17(' .. (tab[vim.fn.strtrans(vim.fn.mode())] or tab['?']) ..  '%#BufferLineFill# %S%)'
+    return '%-17(' .. (tab[vim.fn.strtrans(vim.fn.mode())] or tab['?']) ..  '%#BufferLineFill#%)'
 end
 
 local git = function()
