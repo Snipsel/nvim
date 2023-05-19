@@ -84,129 +84,243 @@ end
 vim.opt.rtp:prepend(lazypath)
 require("lazy").setup("plugins")
 
--- move help files to floating window
--- vim.api.nvim_create_autocmd('BufEnter', {
---     group = 'SnipselInit',
---     callback = function()
---         -- early-out if not help buffer
---         if vim.bo.buftype ~= 'help' then return end
--- 
---         -- early-out if already floating
---         if vim.api.nvim_win_get_config(0).relative ~= '' then return end
--- 
---         local ui = vim.api.nvim_list_uis()[1]
---         vim.api.nvim_win_set_config(0, {
---             relative = 'editor',
---             width = 80-2,
---             height = ui.height-3,
---             col = ui.width/2 - (80-2)/2,
---             row = 2,
---             style = 'minimal',
---             border = 'rounded',
---             external = false,
---             focusable = true,
---             title = vim.fn.expand('%'),
---         })
---         vim.o.laststatus = 0
---         vim.api.nvim_win_set_option(0, 'winhl', 'Normal:Normal')
---     end
--- })
+function cheatsheet()
+    local strdisplaywidth = require('plenary.strings').strdisplaywidth
+    local align_str = require('plenary.strings').align_str
+    local map = {
+        ['left top'] = {
+            {
+                {"󰌒",  'n newer entry in jump list'},
+                {'󰘶󰌒', '🚫'},
+                {"󰘴󰌒", '🚫 go to last accessed tab (g󰌒)'},
+            },{
+                { "'", 'cursor to marked line'},
+                { '"', 'select register'},
+                {"󰘴'", "🚫 → '"},
+                { '`', 'cursor to mark'},
+            },{
+                { ',', 'repeat f/t/F/T reversed'},
+                { '<', 'dedent motion'},
+                {'󰘴,', '🚫 → ,'},
+            },{
+                { '.', 'repeat last action'},
+                { '>', 'indent motion'},
+                {'󰘴.', '🚫 → .'},
+            },{
+                { 'p', 'paste after cursor'},
+                { 'P', 'paste before cursor'},
+                {'󰘴p', '🚫 → k'},
+                { '+', '🚫 → ↲'},
+            },{
+                { 'y', 'yank'},
+                { 'Y', '→ y$'},
+                {'󰘴y', '🚫 scroll up'},
+                { '~', 'toggle case'},
+            }
+        },
 
--- require('snipsel.packer').startup(function(use)
---     -- useful commands
--- 
---     -- LEAP: s=forward, S=backward, gs=other windows
---     use{'ggandor/leap.nvim',
---         requires={'tpope/vim-repeat'},
---         config=function()
---             require('leap').add_default_mappings(true)
---         end
---     }
--- 
---     -- color scheme
---     use{'morhetz/gruvbox', config = "require('snipsel.gruvbox')" }
--- 
---     -- learn keys!
---     use{"folke/which-key.nvim",
---         config = function()
---             require("which-key").setup { }
---         end
---     }
--- 
---     -- show changed lines in git repo with green/red lines
---     use{'lewis6991/gitsigns.nvim', config = function() require('gitsigns').setup() end }
--- 
---     -- terminal
---     use{'akinsho/toggleterm.nvim', tag='*', config=function()
---         require('toggleterm').setup({
---             open_mapping = [[<c-\>]],
---             direction='float'
---         })
---     end}
--- 
---     -- autocompletion & snippets
---     use{'hrsh7th/nvim-cmp',
---         requires={
---             'hrsh7th/cmp-buffer',
---             'hrsh7th/cmp-path',
---             'hrsh7th/cmp-cmdline',
---             'onsails/lspkind.nvim', -- pretty pictograms in completion window
---             'L3MON4D3/LuaSnip', -- snippet engine
---             'saadparwaiz1/cmp_luasnip',
---             'rafamadriz/friendly-snippets', -- some nice default snippets
---         },
---         config = "require('snipsel.cmp')",
---     }
--- 
---     -- beautiful ui
---     use{'glepnir/lspsaga.nvim', branch='main',
---         config = function()
---             require('lspsaga').setup({
---                 move_in_saga = { prev = '<C-k>', next = '<C-j>' },
---                 finder_action_keys = { open = '<CR>' },
---                 definition_action_keys = { edit = '<CR>' },
---                 symbol_in_winbar = {
---                     separator = ' ', -- no separator
---                 }
---             })
---         end
---     }
--- 
---     -- language server
---     use{'williamboman/mason-lspconfig.nvim',
---         requires = {
---             'williamboman/mason.nvim',
---             'neovim/nvim-lspconfig',
---             'hrsh7th/cmp-nvim-lsp', -- completion integration
---         },
---         after = {'nvim-cmp','lspsaga.nvim'},
---         config = "require('snipsel.lsp')",
---     }
--- 
---     -- file browser
---     use{'nvim-tree/nvim-tree.lua',
---         requires = {
---             'nvim-tree/nvim-web-devicons'
---         },
---         config = "require('snipsel.nvim-tree')",
---     }
--- 
---     -- fuzzy search
---     use {'nvim-telescope/telescope.nvim', branch = '0.1.x',
---         requires = {
---             {'nvim-lua/plenary.nvim'},
---             {'nvim-telescope/telescope-fzf-native.nvim', run='make'},
---             {'nvim-tree/nvim-web-devicons'},
---         },
---         config = "require('snipsel.telescope')"
---     }
--- 
---     -- buffer line at the top
---     use{'akinsho/bufferline.nvim', tag = '*',
---         requires = 'nvim-tree/nvim-web-devicons',
---         config = function() require('snipsel.bufferline') end
---     }
--- end)
+        ['left middle'] = {
+            {
+                {'⇱',  'normal mode'},
+                {'󰘶⇱', '🚫'},
+                {'󰘴⇱', '🚫 → ⇱'},
+            },{
+                {'a',  'append after char'},
+                {'A',  'append after line'},
+                {'󰘴a', 'add to number'},
+                {'[',  'bracket command'}
+            },{
+                {'o',  'insert below'},
+                {'O',  'insert above'},
+                {'󰘴o', 'older jump location'},
+                {'!',  'filter motion'},
+            },{
+                {'e',  'cursor end of word'},
+                {'E',  'cursor end of WORD'},
+                {'󰘴e', '🚫 scroll line down'},
+                {'(',  'cursor sentence back'},
+            },{
+                {'u',  'undo'},
+                {'U',  'undo on line'},
+                {'󰘴u', 'scroll half-screen up'},
+                {'{',  'prev paragraph'},
+            },{
+                {'i',  'insert before char'},
+                {'I',  'insert before line'},
+                {'󰘴i', '🚫 → 󰌒'},
+                {'^',  'cursor to first char of line'},
+            }
+        },
+
+        ['left bottom'] = {
+            {
+                {'\\',  '🚫'},
+                {'|',   'cursor to column N'},
+                {'󰘴\\', '🚫'},
+            },{
+                {';', 'repeat last f/t/F/T forwards'},
+                {':', 'Ex command'},
+                {'󰘴;','🚫 → ;'},
+            },{
+                {'q', 'start/stop macro or edit : ? /'},
+                {'Q', 'replay last recorded macro'},
+                {'󰘴q','🆕 quit buffer'},
+            },{
+                {'j', 'cursor down'},
+                {'J', 'join line below'},
+                {'󰘴j','🆕 go to window below'},
+            },{
+                {'k', 'cursor up'},
+                {'K', 'lookup keyword under cursor'},
+                {'󰘴k','🆕 go to window above'},
+            },{
+                {'x', '🚫 → dl delete char'},
+                {'X', '🚫 → dh backspace char'},
+                {'󰘴x','subtract number'},
+            }
+        },
+
+        ['thumbs'] = {
+            {
+                {'␣', 'leader command'},
+                {'', ''}, -- shift space impossible on keyboard
+                {'󰘴␣','🚫 → W'}, -- says unmapped, but i<C-v> says it's received as <C-Space>, and behaves like W
+                -- prob sneakily mapped by nvim-cmp?
+            },{
+                {'⌫',  '🚫 → h'},
+                {'󰘶⌫', '🚫 → b'},
+                {'󰘴⌫', '🚫 → B'},
+            }
+        },
+
+        ['right top'] = {
+            {
+                {'f', 'find forward in line'},
+                {'F', 'find backward in line'},
+                {'󰘴f','🚫 scroll screen forward'},
+                {'#', 'search back for word at cursor'}
+            },{
+                {'g', 'g command'},
+                {'G', 'cursor to line N (default last)'},
+                {'󰘴g','🚫 display file name and pos'},
+                {'*', 'search forward for word at cursor'}
+            },{
+                {'c', 'change {motion}'},
+                {'C', '→ c$'},
+                {'󰘴c','cancel (search) command'},
+                {'%', 'match next () [] {} on line'},
+            },{
+                {'r', 'replace character'},
+                {'R', 'replace mode'},
+                {'󰘴r','redo'},
+                {'&', '→ :s↲ repeat last substitution'},
+            },{
+                {'l', 'cursor right'},
+                {'L', '🆕 cycle next tab'},
+                {'󰘴l','🆕 go to window to the right'},
+                {'@', 'run macro'},
+            },{
+                {'-', 'linewise start of prev line'},
+                {'_', 'linewise start of next-1 line'},
+                {'󰘴-','🚫'},
+            }
+        },
+
+        ['right middle'] = {
+            {
+                {'d', 'cursor right'},
+                {'D', '→ d$'},
+                {'󰘴d','scroll down half a screen'},
+                {'$', 'end of line'},
+            },{
+                {'h', 'cursor left'},
+                {'H', '🆕 cycle prev tab'},
+                {'󰘴h','🆕 go to window to the left'},
+                {'}', 'next paragraph'},
+            },{
+                {'t', 'till character'},
+                {'T', 'till character backward'},
+                {'󰘴t','jump to older tag'},
+                {')', 'next sentence'},
+            },{
+                {'n', 'next match'},
+                {'N', 'prev match'},
+                {'󰘴n','🚫 → j'},
+                {'=', 'auto indent region'},
+            },{
+                {'s', '🆕 surround'},
+                {'S', '🚫 → cc'},
+                {'󰘴s','🆕 save buffer'},
+                {']', 'bracket command'},
+            },{
+                {'↲',  'cursor to start of next line'},
+                {'󰘶↲', '🚫'}, -- unmapped but mysteriously does pgdn or something?
+                {'󰘴↲', '🆕 toggle terminal'},
+            }
+        },
+
+        ['right bottom'] = {
+            {
+                {'b', 'cursor back word'},
+                {'B', 'cursor back WORD'},
+                {'󰘴b','🚫 scroll full screen back'},
+            },{
+                {'m', 'set mark'},
+                {'M', '🚫 cursor to middle line of screen'},
+                {'󰘴m','🚫 → ↲'},
+            },{
+                {'w', 'cursor word forward'},
+                {'W', 'cursor WORD forward'},
+                {'󰘴w','window command'},
+            },{
+                {'v', 'visual mode'},
+                {'V', 'v-line mode'},
+                {'󰘴v','v-block mode'},
+            },{
+                {'z', 'z command'},
+                {'ZZ','🚫 close window, save buffer'},
+                {'󰘴z','suspend neovim'},
+                {'ZQ','🚫 close window, discard buffer'},
+            },{
+                {'/', 'search forward'},
+                {'?', 'search backward'},
+                {'󰘴/','🚫'},
+            }
+        }
+    }
+
+    -- count width of columns
+    local longest_key  = {0,0,0,0}
+    local longest_desc = {0,0,0,0}
+    for groupidx,group in pairs(map) do
+        for _,row in ipairs(group) do
+            for i,entry in ipairs(row) do
+                longest_key[i]  = math.max(longest_key[i],  strdisplaywidth(entry[1]))
+                longest_desc[i] = math.max(longest_desc[i], strdisplaywidth(entry[2]))
+            end
+        end
+    end
+
+    local function print_group(groupname)
+        print(' ')
+        for _,row in ipairs(map[groupname]) do
+            local line = {}
+            for i,entry in ipairs(row) do
+                table.insert(line, align_str(entry[1], longest_key[i], false))
+                table.insert(line, align_str(entry[2], longest_desc[i], false))
+            end
+            print(table.concat(line, ' '))
+        end
+    end
+
+    print_group('left top')
+    print_group('left middle')
+    print_group('left bottom')
+    print_group('thumbs')
+    print_group('right top')
+    print_group('right middle')
+    print_group('right bottom')
+end
 
 local function close_window()
     local window_count = #vim.api.nvim_list_wins()
@@ -228,278 +342,6 @@ local function close_buffer()
     end
 end
 
--- unused keys by neovim
--- 1) function keys
--- 2) alt-keys
--- 3) following ctrl-keys in all modes: ^Q ^S
---    - here, ^Q quits the buffer, and ^S saves the buffer
--- 4) following ctrl-keys in normal mode:
---   ^@  (equal to ^space)
---   ^H  (mapped to h)
---   ^J  (mapped to j)
---   ^N  (mapped to j)
---   ^K  (mapped to k)
---   ^P  (mapped to k)
---   ^L  (mapped to l)
---   ^M  (same as <CR>)
---   ^K  (free)
---   ^[  (= ^Esc )
---   ^_  (= ^/ )
---   ^\  (part 'reserved for extentions' whatever that means)
---   ^<CR> (here mapped to toggleterm)
--- 5) following keys in normal mode:
---  <bs> mapped to h
---    +  (mapped to <CR>)
---    K  (man page finder, not that useful)
---    S  mapped to cc, used by vim-surround
---    Y  mapped to y$ in neovim
---    _  almost identical to <CR>
---    s  mapped to cl
--- 6) not that useful keys in normal mode
---    x  mapped to dl ( may be useful to repeatedly use t
---    H  cursor to line N from the top of screen
---    L  cursor to line N from the bottom of the screen
---   ^B  scroll N full-screens backwards
---   ^F  scroll N full-screens forwards
-
-function print_keymap()
-    local strdisplaywidth = require('plenary.strings').strdisplaywidth
-    local align_str = require('plenary.strings').align_str
-    local map = {
-        ['left top'] = {
-            {
-                {"󰌒",  'n newer entry in jump list'},
-                {'󰘶󰌒',  ''},
-                {"󰘴󰌒", 'go to last accessed tab (g󰌒)'},
-            },{
-                { "'", 'cursor to marked line'},
-                { '"', 'select register'},
-                {"󰘴'", "→ '"},
-                { '`', 'cursor to mark'},
-            },{
-                { ',', 'repeat f/t/F/T reversed'},
-                { '<', 'dedent motion'},
-                {'󰘴,', '→ ,'},
-            },{
-                { '.', 'repeat last action'},
-                { '>', 'indent motion'},
-                {'󰘴.', '→ .'},
-            },{
-                { 'p', 'paste after cursor'},
-                { 'P', 'paste before cursor'},
-                {'󰘴p', '→ k'},
-                { '+', '→ ↲'},
-            },{
-                { 'y', 'yank'},
-                { 'Y', '→ y$'},
-                {'󰘴y', 'scroll up'},
-                { '~', 'toggle case'},
-            }
-        },
-
-        ['left middle'] = {
-            {
-                {'⇱',  'normal mode'},
-                {'󰘶⇱', ''},
-                {'󰘴⇱', '→ ⇱'},
-            },{
-                {'a',  'append after char'},
-                {'A',  'append after line'},
-                {'󰘴a', 'add to number'},
-                {'[',  'bracket command'}
-            },{
-                {'o',  'insert below'},
-                {'O',  'insert above'},
-                {'󰘴o', 'older jump location'},
-                {'!',  'filter motion'},
-            },{
-                {'e',  'cursor end of word'},
-                {'E',  'cursor end of WORD'},
-                {'󰘴e', 'scroll line up'},
-                {'(',  'cursor sentence back'},
-            },{
-                {'u',  'undo'},
-                {'U',  'undo on line'},
-                {'󰘴u', 'scroll half-screen up'},
-                {'{',  'prev paragraph'},
-            },{
-                {'i',  'insert before char'},
-                {'I',  'insert before line'},
-                {'󰘴i', '→ 󰌒'},
-                {'^',  'cursor to first char of line'},
-            }
-        },
-
-        ['left bottom'] = {
-            {
-                {'\\',  ''},
-                {'|',   'cursor to column N'},
-                {'󰘴\\', ''},
-            },{
-                {';', 'repeat last f/t/F/T forwards'},
-                {':', 'Ex command'},
-                {'󰘴;', '→ ;'},
-            },{
-                {'q', 'start/stop macro or edit : ? /'},
-                {'Q', 'replay last recorded macro'},
-                {'󰘴q', '→ ;'},
-            },{
-                {'j', 'cursor down'},
-                {'J', 'join line below'},
-                {'󰘴j','→ j'},
-            },{
-                {'k', 'cursor up'},
-                {'K', 'lookup keyword under cursor'},
-                {'󰘴k',''},
-            },{
-                {'x', '→ dl delete char'},
-                {'X', '→ dh backspace char'},
-                {'󰘴x','subtract number'},
-            }
-        },
-
-        ['thumbs'] = {
-            {
-                {'␣', 'leader'},
-                {'', ''}, -- shift space impossible on keyboard
-                {'󰘴␣','→ W'}, -- says unmapped, but i<C-v> says it's received as <C-Space>, and behaves like W
-                -- prob sneakily mapped by nvim-cmp?
-            },{
-                {'⌫',  '→ h'},
-                {'󰘶⌫', '→ b'},
-                {'󰘴⌫', '→ B'},
-            }
-        },
-
-        ['right top'] = {
-            {
-                {'f', 'find forward in line'},
-                {'F', 'find backward in line'},
-                {'󰘴f','scroll screen forward'},
-                {'#', 'search back for word at cursor'}
-            },{
-                {'g', 'g command'},
-                {'G', 'cursor to line N (default last)'},
-                {'󰘴g','display file name and pos'},
-                {'*', 'search forward for word at cursor'}
-            },{
-                {'c', 'change {motion}'},
-                {'C', '→ c$'},
-                {'󰘴c','cancel (search) command'},
-                {'%', 'match next () [] {} on line'},
-            },{
-                {'r', 'replace character'},
-                {'R', 'replace mode'},
-                {'󰘴r','redo'},
-                {'&', '→ :s↲ repeat last substitution'},
-            },{
-                {'l', 'cursor right'},
-                {'L', 'cursor to line from bottom of screen'},
-                {'󰘴l','redraw screen'},
-                {'@', 'run macro'},
-            },{
-                {'-', 'linewise start of prev line'},
-                {'_', 'linewise start of next-1 line'},
-                {'󰘴-',''},
-            }
-        },
-
-        ['right middle'] = {
-            {
-                {'d', 'cursor right'},
-                {'D', '→ d$'},
-                {'󰘴d','scroll down half a screen'},
-                {'$', 'end of line'},
-            },{
-                {'h', 'cursor left'},
-                {'H', 'cursor to line from top of screen'},
-                {'󰘴h','→ h'},
-                {'}', 'next paragraph'},
-            },{
-                {'t', 'till character'},
-                {'T', 'till character backward'},
-                {'󰘴t','jump to older tag'},
-                {')', 'next sentence'},
-            },{
-                {'n', 'next match'},
-                {'N', 'prev match'},
-                {'󰘴n','→ j'},
-                {'=', 'auto indent region'},
-            },{
-                {'s', '→ xi'},
-                {'S', '→ cc'},
-                {'󰘴s',''},
-                {']', 'bracket command'},
-            },{
-                {'↲',  'cursor to start of next line'},
-                {'󰘶↲', ''}, -- unmapped but mysteriously does pgdn or something?
-                {'󰘴↲', ''}, -- mapped to toggleterm
-            }
-        },
-
-        ['right bottom'] = {
-            {
-                {'b', 'cursor back word'},
-                {'B', 'cursor back WORD'},
-                {'󰘴b','scroll full screen back'},
-            },{
-                {'m', 'set mark'},
-                {'M', 'cursor to middle line of screen'},
-                {'󰘴m','→ ↲'},
-            },{
-                {'w', 'cursor word forward'},
-                {'W', 'cursor WORD forward'},
-                {'󰘴w','window command'},
-            },{
-                {'v', 'visual mode'},
-                {'V', 'v-line mode'},
-                {'󰘴v','v-block mode'},
-            },{
-                {'z', 'z command'},
-                {'ZZ', 'close window, save buffer'},
-                {'󰘴z','suspend program'},
-                {'ZQ', 'close window, discard buffer'},
-            },{
-                {'/', 'search forward'},
-                {'?', 'search backward'},
-                {'󰘴/',''},
-            }
-        }
-    }
-
-    -- count width of columns
-    local longest_key  = {0,0,0,0}
-    local longest_desc = {0,0,0,0}
-    for groupidx,group in pairs(map) do
-        for _,row in ipairs(group) do
-            for i,entry in ipairs(row) do
-                longest_key[i]  = math.max(longest_key[i],  strdisplaywidth(entry[1]))
-                longest_desc[i] = math.max(longest_desc[i], strdisplaywidth(entry[2]))
-            end
-        end
-    end
-
-    local function print_group(groupname)
-        print(' ')
-        --print(string.rep(' ', longest_key[1]) .. ' ' .. groupname)
-        for _,row in ipairs(map[groupname]) do
-            local line = {}
-            for i,entry in ipairs(row) do
-                table.insert(line, align_str(entry[1], longest_key[i], false))
-                table.insert(line, align_str(entry[2], longest_desc[i], false))
-            end
-            print(table.concat(line, ' '))
-        end
-    end
-
-    print_group('left top')
-    print_group('left middle')
-    print_group('left bottom')
-    print_group('thumbs')
-    print_group('right top')
-    print_group('right middle')
-    print_group('right bottom')
-end
 
 local nmap = {
     ['␣']  = {--[[ unset space --]]        n='<NOP>', v='<NOP>'},
@@ -507,23 +349,24 @@ local nmap = {
     ['␣Q'] = {'Quit neovim',               n=':confirm quita↲'},
 
     -- window management
+    ['↑h'] = {'Go to window to the left',  n='↑w↑h'},
+    ['↑j'] = {'Go to window below',        n='↑w↑j'},
+    ['↑k'] = {'Go to window above',        n='↑w↑k'},
+    ['↑l'] = {'Go to window to the right', n='↑w↑l'},
+
     ['␣q'] = {'Quit window',               n= close_window},
-
-    ['␣h'] = {'Go to window to the left',  n='↑w↑h'},
-    ['␣j'] = {'Go to window below',        n='↑w↑j'},
-    ['␣k'] = {'Go to window above',        n='↑w↑k'},
-    ['␣l'] = {'Go to window to the right', n='↑w↑l'},
-
     ['␣v'] = {'Vertical split',            n=':vsplit↲'},
     ['␣s'] = {'Split horizontal',          n=':split↲'},
 
     -- buffer management
-    ['↑l'] = {'Go to next buffer',         n=':BufferLineCycleNext↲'},
-    ['↑h'] = {'Go to previous buffer',     n=':BufferLineCyclePrev↲'},
+    [ 'L'] = {'Go to next buffer',         n=':BufferLineCycleNext↲'},
+    [ 'H'] = {'Go to previous buffer',     n=':BufferLineCyclePrev↲'},
     ['↑q'] = {'Quit buffer',               n= close_buffer},
     ['↑s'] = {'Save buffer',               n=':update↲',
                                            v='↑c:update↲gv',
                                            i='↑o:update↲'},
+
+    -- centere screen on cursor after move
     ['↑u'] = {'Go up by half a screen',    n='↑uzz'},
     ['↑d'] = {'Go down by half a screen',  n='↑dzz'},
 
