@@ -262,59 +262,244 @@ end
 --   ^B  scroll N full-screens backwards
 --   ^F  scroll N full-screens forwards
 
-local function print_keymap()
+function print_keymap()
+    local strdisplaywidth = require('plenary.strings').strdisplaywidth
+    local align_str = require('plenary.strings').align_str
     local map = {
-        {
-            {"tab",  'n newer entry in jump list'},
-            {"^tab", 'go to last accessed tab (g<tab>)'},
-            {'TAB',  '(unmapped)'},
-        },{
-            { "'", 'cursor to marked line'},
-            {"^'", '(unmapped)'},
-            { '"', 'select register'},
-            { '`', 'cursor to mark'},
-        },{
-            { ',', 'repeat f/t/F/T reversed'},
-            {'^,', '(unmapped)'},
-            { '<', 'dedent motion'},
-        },{
-            { '.', 'repeat last action'},
-            {'^.', '(unmapped)'},
-            { '>', 'indent motion'},
-        },{
-            { 'p', 'paste after cursor'},
-            {'^p', 'mapped to k'},
-            { 'P', 'paste before cursor'},
-            { '+', 'mapped to ↲'},
-        },{
-            { 'y', 'yank'},
-            {'^y', 'scroll up'},
-            { 'Y', 'mapped to y$'},
-            { '~', 'toggle case'},
+        ['left top'] = {
+            {
+                {"󰌒",  'n newer entry in jump list'},
+                {'󰘶󰌒',  ''},
+                {"󰘴󰌒", 'go to last accessed tab (g󰌒)'},
+            },{
+                { "'", 'cursor to marked line'},
+                { '"', 'select register'},
+                {"󰘴'", "→ '"},
+                { '`', 'cursor to mark'},
+            },{
+                { ',', 'repeat f/t/F/T reversed'},
+                { '<', 'dedent motion'},
+                {'󰘴,', '→ ,'},
+            },{
+                { '.', 'repeat last action'},
+                { '>', 'indent motion'},
+                {'󰘴.', '→ .'},
+            },{
+                { 'p', 'paste after cursor'},
+                { 'P', 'paste before cursor'},
+                {'󰘴p', '→ k'},
+                { '+', '→ ↲'},
+            },{
+                { 'y', 'yank'},
+                { 'Y', '→ y$'},
+                {'󰘴y', 'scroll up'},
+                { '~', 'toggle case'},
+            }
         },
+
+        ['left middle'] = {
+            {
+                {'⇱',  'normal mode'},
+                {'󰘶⇱', ''},
+                {'󰘴⇱', '→ ⇱'},
+            },{
+                {'a',  'append after char'},
+                {'A',  'append after line'},
+                {'󰘴a', 'add to number'},
+                {'[',  'bracket command'}
+            },{
+                {'o',  'insert below'},
+                {'O',  'insert above'},
+                {'󰘴o', 'older jump location'},
+                {'!',  'filter motion'},
+            },{
+                {'e',  'cursor end of word'},
+                {'E',  'cursor end of WORD'},
+                {'󰘴e', 'scroll line up'},
+                {'(',  'cursor sentence back'},
+            },{
+                {'u',  'undo'},
+                {'U',  'undo on line'},
+                {'󰘴u', 'scroll half-screen up'},
+                {'{',  'prev paragraph'},
+            },{
+                {'i',  'insert before char'},
+                {'I',  'insert before line'},
+                {'󰘴i', '→ 󰌒'},
+                {'^',  'cursor to first char of line'},
+            }
+        },
+
+        ['left bottom'] = {
+            {
+                {'\\',  ''},
+                {'|',   'cursor to column N'},
+                {'󰘴\\', ''},
+            },{
+                {';', 'repeat last f/t/F/T forwards'},
+                {':', 'Ex command'},
+                {'󰘴;', '→ ;'},
+            },{
+                {'q', 'start/stop macro or edit : ? /'},
+                {'Q', 'replay last recorded macro'},
+                {'󰘴q', '→ ;'},
+            },{
+                {'j', 'cursor down'},
+                {'J', 'join line below'},
+                {'󰘴j','→ j'},
+            },{
+                {'k', 'cursor up'},
+                {'K', 'lookup keyword under cursor'},
+                {'󰘴k',''},
+            },{
+                {'x', '→ dl delete char'},
+                {'X', '→ dh backspace char'},
+                {'󰘴x','subtract number'},
+            }
+        },
+
+        ['thumbs'] = {
+            {
+                {'␣', 'leader'},
+                {'', ''}, -- shift space impossible on keyboard
+                {'󰘴␣','→ W'}, -- says unmapped, but i<C-v> says it's received as <C-Space>, and behaves like W
+                -- prob sneakily mapped by nvim-cmp?
+            },{
+                {'⌫',  '→ h'},
+                {'󰘶⌫', '→ b'},
+                {'󰘴⌫', '→ B'},
+            }
+        },
+
+        ['right top'] = {
+            {
+                {'f', 'find forward in line'},
+                {'F', 'find backward in line'},
+                {'󰘴f','scroll screen forward'},
+                {'#', 'search back for word at cursor'}
+            },{
+                {'g', 'g command'},
+                {'G', 'cursor to line N (default last)'},
+                {'󰘴g','display file name and pos'},
+                {'*', 'search forward for word at cursor'}
+            },{
+                {'c', 'change {motion}'},
+                {'C', '→ c$'},
+                {'󰘴c','cancel (search) command'},
+                {'%', 'match next () [] {} on line'},
+            },{
+                {'r', 'replace character'},
+                {'R', 'replace mode'},
+                {'󰘴r','redo'},
+                {'&', '→ :s↲ repeat last substitution'},
+            },{
+                {'l', 'cursor right'},
+                {'L', 'cursor to line from bottom of screen'},
+                {'󰘴l','redraw screen'},
+                {'@', 'run macro'},
+            },{
+                {'-', 'linewise start of prev line'},
+                {'_', 'linewise start of next-1 line'},
+                {'󰘴-',''},
+            }
+        },
+
+        ['right middle'] = {
+            {
+                {'d', 'cursor right'},
+                {'D', '→ d$'},
+                {'󰘴d','scroll down half a screen'},
+                {'$', 'end of line'},
+            },{
+                {'h', 'cursor left'},
+                {'H', 'cursor to line from top of screen'},
+                {'󰘴h','→ h'},
+                {'}', 'next paragraph'},
+            },{
+                {'t', 'till character'},
+                {'T', 'till character backward'},
+                {'󰘴t','jump to older tag'},
+                {')', 'next sentence'},
+            },{
+                {'n', 'next match'},
+                {'N', 'prev match'},
+                {'󰘴n','→ j'},
+                {'=', 'auto indent region'},
+            },{
+                {'s', '→ xi'},
+                {'S', '→ cc'},
+                {'󰘴s',''},
+                {']', 'bracket command'},
+            },{
+                {'↲',  'cursor to start of next line'},
+                {'󰘶↲', ''}, -- unmapped but mysteriously does pgdn or something?
+                {'󰘴↲', ''}, -- mapped to toggleterm
+            }
+        },
+
+        ['right bottom'] = {
+            {
+                {'b', 'cursor back word'},
+                {'B', 'cursor back WORD'},
+                {'󰘴b','scroll full screen back'},
+            },{
+                {'m', 'set mark'},
+                {'M', 'cursor to middle line of screen'},
+                {'󰘴m','→ ↲'},
+            },{
+                {'w', 'cursor word forward'},
+                {'W', 'cursor WORD forward'},
+                {'󰘴w','window command'},
+            },{
+                {'v', 'visual mode'},
+                {'V', 'v-line mode'},
+                {'󰘴v','v-block mode'},
+            },{
+                {'z', 'z command'},
+                {'ZZ', 'close window, save buffer'},
+                {'󰘴z','suspend program'},
+                {'ZQ', 'close window, discard buffer'},
+            },{
+                {'/', 'search forward'},
+                {'?', 'search backward'},
+                {'󰘴/',''},
+            }
+        }
     }
 
     -- count width of columns
-    local max_key  = {0,0,0,0}
-    local max_desc = {0,0,0,0}
-    for _,row in ipairs(map) do
-        for i,entry in ipairs(row) do
-            max_key[i]  = math.max(max_key[i],  string.len(entry[1]))
-            max_desc[i] = math.max(max_desc[i], string.len(entry[2]))
+    local longest_key  = {0,0,0,0}
+    local longest_desc = {0,0,0,0}
+    for groupidx,group in pairs(map) do
+        for _,row in ipairs(group) do
+            for i,entry in ipairs(row) do
+                longest_key[i]  = math.max(longest_key[i],  strdisplaywidth(entry[1]))
+                longest_desc[i] = math.max(longest_desc[i], strdisplaywidth(entry[2]))
+            end
         end
     end
 
-    for _,row in ipairs(map) do
-        local line = {}
-        for i,entry in ipairs(row) do
-            local fmt = '%' .. max_key[i] .. 's %-' .. max_desc[i] .. 's'
-            table.insert(line, string.format(fmt, entry[1], entry[2]))
+    local function print_group(groupname)
+        print(' ')
+        --print(string.rep(' ', longest_key[1]) .. ' ' .. groupname)
+        for _,row in ipairs(map[groupname]) do
+            local line = {}
+            for i,entry in ipairs(row) do
+                table.insert(line, align_str(entry[1], longest_key[i], false))
+                table.insert(line, align_str(entry[2], longest_desc[i], false))
+            end
+            print(table.concat(line, ' '))
         end
-        print(table.concat(line, '  '))
     end
+
+    print_group('left top')
+    print_group('left middle')
+    print_group('left bottom')
+    print_group('thumbs')
+    print_group('right top')
+    print_group('right middle')
+    print_group('right bottom')
 end
-
-print_keymap()
 
 local nmap = {
     ['␣']  = {--[[ unset space --]]        n='<NOP>', v='<NOP>'},
