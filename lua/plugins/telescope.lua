@@ -6,10 +6,10 @@ return { 'nvim-telescope/telescope.nvim', branch = '0.1.x',
         {'nvim-telescope/telescope-file-browser.nvim'},
     },
     keys = {
-        {'<space>o', function() require('telescope').extensions.file_browser.file_browser() end, desc = 'Open file' },
-        {'<space>g', function() require('telescope.builtin').live_grep()  end, desc = 'Grep files'  },
-        {'<space>b', function() require('telescope.builtin').buffers()    end, desc = 'Find buffer' },
-        {'<space>?', function() require('telescope.builtin').help_tags()  end, desc = 'Help'        },
+        {'<C-e>', function() require('telescope').extensions.file_browser.file_browser() end, desc = 'Edit file' },
+        {'<C-g>', function() require('telescope.builtin').live_grep()  end, desc = 'Grep files'  },
+        {'<C-b>', function() require('telescope.builtin').buffers()    end, desc = 'Find buffer' },
+        {'gh',    function() require('telescope.builtin').help_tags()  end, desc = 'Get help'    },
     },
     config = function()
         require('telescope').setup {}

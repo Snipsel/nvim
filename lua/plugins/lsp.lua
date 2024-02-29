@@ -14,6 +14,24 @@ return {
         end
     },
 
+    {   'simrat39/rust-tools.nvim',
+        dependencies = {
+            'neovim/nvim-lspconfig',
+        },
+        config = function()
+            local rt = require("rust-tools")
+            rt.setup({
+                server = {
+                    on_attach = function(_, bufnr)
+                      vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+                      -- Code action groups
+                      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+                    end,
+                },
+            })
+        end
+    },
+
     {   'williamboman/mason-lspconfig.nvim',
         dependencies = {
             'williamboman/mason.nvim',
@@ -23,18 +41,20 @@ return {
         config = function()
             require('mason').setup()
             require('mason-lspconfig').setup({
-                ensure_installed = { 'lua_ls', 'clangd' }
+                ensure_installed = { 'lua_ls', 'clangd', 'rust_analyzer' }
             })
 
             local lspconfig = require('lspconfig')
 
             local on_attach = function(client, bufnr)
-                local opt = { noremap = true, silent=true, buffer = bufnr }
-                vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename,         opt)
-                vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action,    opt)
-                vim.keymap.set('n', '<leader>gd', vim.lsp.buf.definition,     opt)
-                vim.keymap.set('n', '<leader>gi', vim.lsp.buf.implementation, opt)
-                vim.keymap.set('n', '<leader>K',  vim.lsp.buf.hover,          opt)
+                local function map(lhs, rhs, desc)
+                    vim.keymap.set('n', lhs, rhs, { noremap = true, silent=true, buffer = bufnr, desc=desc })
+                end
+                map('<leader>rn', vim.lsp.buf.rename,         'Rename (lsp)')
+                map('<leader>ca', vim.lsp.buf.code_action,    'Code action (lsp)')
+                map('gd',         vim.lsp.buf.definition,     'Go to definition (lsp)')
+                map('gi',         vim.lsp.buf.implementation, 'Go to implementation (lsp)')
+                map('K',          vim.lsp.buf.hover,          'Look up information (lsp)')
             end
 
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -61,6 +81,11 @@ return {
                 on_attach = on_attach,
                 capabilities = capabilities,
             })
+
+            ---lspconfig['rust_analyzer'].setup({
+            ---    on_attach = on_attach,
+            ---    capabilities = capabilities,
+            ---})
         end
     }
 }
